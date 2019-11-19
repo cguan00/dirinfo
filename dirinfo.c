@@ -4,18 +4,34 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <time.h>
 #include <errno.h>
 #include <dirent.h>
 
+// Your program should handle user input as follows:
+// If a command line argument is entered, use that as the directory to scan.
+// If not, the program should ask the user to enter a directory to scan.
+// In either case, don't assume your user knows what they are doing, if an invalid directory is entered, take reasonable action (*ahem* errno *cough cough*)
 
-int main(){
-  // Have the program scan the current directory
-  printf("Statistics for directory: .\n");
-  DIR *d = opendir(".");
+
+int main(int argc, char *argv[]){
+  DIR *d;
+
+  char input[100];
+  if (argc == 1){
+    printf("Please enter directory name:\n");
+    fgets(input, sizeof input, stdin);
+    input[strlen(input) - 1] = '\0';
+    d = opendir(input);
+  } else{
+    d = opendir(argv[1]);
+  }
   if (errno > 0){
     printf("Errno: %s\n", strerror(errno));
   }
+
+  chdir(input);
+
+  printf("Statistics for directory: \n");
 
   // show the total size of all the regular files the directory
   struct dirent *file = readdir(d);
